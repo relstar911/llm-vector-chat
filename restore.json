@@ -1,0 +1,22 @@
+{
+  "session": {
+    "id": "e29df608-e70f-46f0-9dcd-d3479ad42305",
+    "title": "Mano Meter, wieso ist diese Welt so gemein",
+    "created_at": "2025-05-04T00:12:57.583118"
+  },
+  "messages": [
+    {
+      "id": "a9e209cb-070c-44d1-b53e-965269c972ad",
+      "sender": "user",
+      "text": "Mano Meter, wieso ist diese Welt so gemein",
+      "timestamp": "2025-05-04T00:13:06.557960"
+    },
+    {
+      "id": "512a7945-e95e-4354-82e7-5c4ac3475552",
+      "sender": "assistant",
+      "text": "Ich bin mir nicht sicher, aber ich denke, die Welt kann nicht gemein sein, sondern es gibt verschiedene Perspektiven und Werte, die Menschen haben. Es ist wichtig, respektive und tolerant gegenüber anderen zu sein und ihre Meinungen und Überzeugungen zu achten. Vielleicht gibt es auch einige Probleme oder Herausforderungen in der Welt, aber das bedeutet nicht, dass die Welt als Ganzes gemein ist. Es gibt viele schöne Dinge in der Welt, wie zum Beispiel die Natur, Kulturen und Arten, die wir respektieren sollten.",
+      "timestamp": "2025-05-04T00:13:09.921285"
+    }
+  ],
+  "restore_vectors": false
+}

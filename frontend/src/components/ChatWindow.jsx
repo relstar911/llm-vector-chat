@@ -77,7 +77,18 @@ export default function ChatWindow({ selectedSession }) {
   return (
     <Fade in>
       <Paper elevation={4} sx={{ p: 3, minHeight: 400, display: 'flex', flexDirection: 'column', background: 'linear-gradient(135deg, #e8f8f6 0%, #a2f5e2 100%)' }}>
-        <Box flex={1} overflow="auto" mb={2} onScroll={handleScroll} ref={topRef}>
+        <Box flex={1} mb={2} onScroll={handleScroll} ref={topRef}
+  sx={{
+    overflowY: 'auto',
+    minHeight: 300,
+    maxHeight: 500,
+    pr: 2,
+    scrollbarWidth: 'thin', // für Firefox
+    '&::-webkit-scrollbar': { width: '8px' }, // für Chrome
+    '&::-webkit-scrollbar-thumb': { background: '#b2dfdb', borderRadius: 4 }
+  }}
+>
+
           {messages.map((msg, i) => (
             <Slide key={i} direction="up" in mountOnEnter unmountOnExit>
               <Box ref={i === messages.length - 1 ? lastMsgRef : null} mb={2} display="flex" justifyContent={msg.sender === 'user' ? 'flex-end' : 'flex-start'}>

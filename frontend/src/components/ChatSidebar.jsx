@@ -25,6 +25,14 @@ export default function ChatSidebar({ onSelectSession, selectedSessionId }) {
 
   const confirmDeleteSession = async () => {
     if (deleteSessionId) {
+      // Vor dem Löschen Session-Daten sichern
+      const sessionToDelete = sessions.find(s => s.id === deleteSessionId);
+      let messages = [];
+      try {
+        const res = await axios.get(`/sessions/${deleteSessionId}/messages?limit=1000&offset=0`);
+        messages = res.data;
+      } catch {}
+      setUndoData({ session: sessionToDelete, messages, removeVectors });
       await axios.delete(`/sessions/${deleteSessionId}?remove_vectors=${removeVectors}`);
       fetchSessions();
       if (selectedSessionId === deleteSessionId) {
@@ -32,8 +40,43 @@ export default function ChatSidebar({ onSelectSession, selectedSessionId }) {
       }
       setDeleteSessionId(null);
       setDeleteDialogOpen(false);
+      setSnackbarOpen(true);
     }
   };
+
+  const handleUndo = async () => {
+    if (!undoData) return;
+    // Serialisiere Daten für Restore sauber
+    const session = {
+      id: String(undoData.session.id),
+      title: undoData.session.title || null,
+      created_at: undoData.session.created_at || null
+    };
+    const messages = (undoData.messages || []).map(msg => ({
+      id: String(msg.id),
+      sender: msg.sender,
+      text: msg.text,
+      timestamp: msg.timestamp || null
+    }));
+    const payload = {
+      session,
+      messages,
+      restore_vectors: !undoData.removeVectors
+    };
+    console.log("Restore-Request", JSON.stringify(payload, null, 2));
+    try {
+      await axios.post('/sessions/restore', payload);
+      fetchSessions();
+      setSnackbarOpen(false);
+      setUndoData(null);
+    } catch (err) {
+      setSnackbarOpen(false);
+      setUndoData(null);
+      alert('Fehler beim Wiederherstellen der Session: ' + (err?.response?.data?.error || err.message));
+    }
+  };
+
+
 
   const handleCancelDelete = () => {
     setDeleteDialogOpen(false);
@@ -100,8 +143,12 @@ export default function ChatSidebar({ onSelectSession, selectedSessionId }) {
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={() => setSnackbarOpen(false)}
-        message="Chat gelöscht"
-        
+        message={
+          <span>
+            Session gelöscht
+            <Button color="secondary" size="small" onClick={handleUndo} startIcon={<UndoIcon />}>Undo</Button>
+          </span>
+        }
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
       <Dialog open={deleteDialogOpen} onClose={handleCancelDelete}>

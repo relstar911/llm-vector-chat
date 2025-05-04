@@ -95,7 +95,9 @@ def add_message(session_id: str, req: MessageCreateRequest, db: Session = Depend
     return {"id": msg_id, "sender": req.sender, "text": req.text, "timestamp": msg.timestamp.isoformat()}
 
 from fastapi import Query
-from app.services.vector_db import remove_from_vector_db
+from app.services.vector_db import remove_from_vector_db, add_to_vector_db
+from pydantic import BaseModel
+from typing import List, Optional
 
 @router.delete("/sessions/{session_id}")
 def delete_session(session_id: str, remove_vectors: bool = Query(True), db: Session = Depends(get_db)):
@@ -109,3 +111,70 @@ def delete_session(session_id: str, remove_vectors: bool = Query(True), db: Sess
     db.delete(session)
     db.commit()
     return {"success": True}
+
+# ----- Undo/Restore Endpoint -----
+class RestoreSessionRequest(BaseModel):
+    session: dict
+    messages: List[dict]
+    restore_vectors: Optional[bool] = True
+
+@router.post("/sessions/restore")
+def restore_session(req: RestoreSessionRequest, db: Session = Depends(get_db)):
+    import traceback
+    from uuid import uuid4
+    import datetime
+    try:
+        print("[Restore-DEBUG] Request-Body:", req)
+        session_data = req.session
+        # Prüfe, ob Session schon existiert
+        if db.query(ChatSession).filter_by(id=session_data['id']).first():
+            return {"success": False, "error": "Session ID already exists"}
+        # created_at korrekt parsen
+        created_at = session_data.get('created_at')
+        if isinstance(created_at, str):
+            try:
+                created_at = datetime.datetime.fromisoformat(created_at)
+            except Exception:
+                created_at = datetime.datetime.utcnow()
+        elif not created_at:
+            created_at = datetime.datetime.utcnow()
+        session_obj = ChatSession(
+            id=session_data['id'],
+            title=session_data.get('title'),
+            created_at=created_at
+        )
+        db.add(session_obj)
+        # Nachrichten wiederherstellen
+        for msg in req.messages:
+            print(f"[Restore-DEBUG] Restoring message: {msg}")
+            # timestamp korrekt parsen
+            ts = msg.get('timestamp')
+            if isinstance(ts, str):
+                try:
+                    ts = datetime.datetime.fromisoformat(ts)
+                except Exception:
+                    ts = datetime.datetime.utcnow()
+            elif not ts:
+                ts = datetime.datetime.utcnow()
+            msg_obj = ChatMessage(
+                id=msg['id'],
+                session_id=session_obj.id,
+                sender=msg['sender'],
+                text=msg['text'],
+                timestamp=ts
+            )
+            db.add(msg_obj)
+            # Embedding ggf. wiederherstellen
+            if req.restore_vectors:
+                try:
+                    embedding = msg.get('embedding') or [0.0]*384
+                    add_to_vector_db(msg['text'], embedding, {"id": msg['id'], "session_id": session_obj.id})
+                except Exception as e:
+                    print(f"[Restore-DEBUG] Fehler beim Restore Embedding: {e}")
+        db.commit()
+        print("[Restore-DEBUG] Restore erfolgreich!")
+        return {"success": True, "restored_session_id": session_obj.id}
+    except Exception as e:
+        print("[Restore-ERROR] Exception:", e)
+        print(traceback.format_exc())
+        return {"success": False, "error": str(e), "trace": traceback.format_exc()}

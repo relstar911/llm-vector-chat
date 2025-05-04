@@ -102,18 +102,6 @@ Professionelles, lokal laufendes Chat-System mit LLM, Vektor-Datenbank und API-B
 
 ---
 
-## Roadmap (Nächste Schritte)
-- [x] Multi-Session-Chat mit dynamischen Titeln und Session-Löschung (inkl. Option zur Vektor-DB-Bereinigung)
-- [x] Konsistenz zwischen SQLite und ChromaDB bei allen Operationen
-- [ ] Undo-Funktion beim Session-Löschen (inkl. Embedding-Restore)
-- [ ] Multi-Message-Threads (mehrere Nachrichten pro Session)
-- [ ] Authentifizierung (User-Login, persönliche Chat-Historie)
-- [ ] Export- und Suchfunktion für Sessions/Chats
-- [ ] User-Interface weiter verfeinern (z.B. Undo-Snackbar, Suche, Export)
-- [ ] Faktenprüfung / RAG (z.B. Wikipedia-API)
-- [ ] Testabdeckung erhöhen (API, Vektor-DB, Lösch-Logik)
-
----
 
 ## Projektstatus
 - [x] LLM-Chat lokal lauffähig
@@ -121,8 +109,9 @@ Professionelles, lokal laufendes Chat-System mit LLM, Vektor-Datenbank und API-B
 - [x] API-Design sauber und modular
 - [x] Modernes Frontend mit Sidebar, Session-Löschung, Delete-Dialog
 - [x] Konsistenz zwischen SQLite & ChromaDB
-- [ ] Undo-Funktion beim Session-Löschen noch offen
-- [ ] Multi-Message-Threads & Auth noch offen
+- [x] Undo-Funktion beim Session-Löschen (Frontend & Backend vollständig implementiert)
+- [x] Multi-Message-Threads & 
+- [ ] Auth
 
 ---
 
