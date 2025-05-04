@@ -9,6 +9,7 @@ export default defineConfig({
       '/chat': 'http://localhost:8000',
       '/query': 'http://localhost:8000',
       '/sessions': 'http://localhost:8000',
+      '/factcheck': 'http://localhost:8000',
     },
   },
 });

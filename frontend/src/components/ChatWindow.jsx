@@ -10,6 +10,55 @@ import Fade from '@mui/material/Fade';
 import SendIcon from '@mui/icons-material/Send';
 import axios from 'axios';
 
+// --- Hilfskomponente für Faktencheck ---
+function FactCheckSection({ message }) {
+  const [checking, setChecking] = React.useState(false);
+  const [result, setResult] = React.useState(null);
+  const [error, setError] = React.useState("");
+
+  const handleFactCheck = async () => {
+    setChecking(true);
+    setError("");
+    setResult(null);
+    try {
+      const res = await axios.post("/factcheck", { text: message, language: "de" });
+      setResult(res.data);
+    } catch (e) {
+      setError("Faktenprüfung fehlgeschlagen.");
+    } finally {
+      setChecking(false);
+    }
+  };
+
+  return (
+    <Box mt={1}>
+      <Button size="small" variant="outlined" onClick={handleFactCheck} disabled={checking} sx={{ mb: 1 }}>
+        Fakten prüfen
+      </Button>
+      {checking && <CircularProgress size={18} sx={{ ml: 1, verticalAlign: 'middle' }} />}
+      {error && <Typography color="error" variant="caption">{error}</Typography>}
+      {result && result.results && (
+        <Box mt={1}>
+          {result.results.map((r, idx) => (
+            <Box key={idx} mb={1}>
+              <Typography variant="caption" color={r.found ? 'success.main' : 'warning.main'}>
+                {r.found ? (
+                  <>
+                    <b>Fakt gefunden:</b> {r.summary && <span dangerouslySetInnerHTML={{ __html: r.summary }} />}<br />
+                    <a href={r.url} target="_blank" rel="noopener noreferrer">Wikipedia-Link</a>
+                  </>
+                ) : (
+                  <>Kein passender Fakt gefunden.</>
+                )}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      )}
+    </Box>
+  );
+}
+
 export default function ChatWindow({ selectedSession }) {
   const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState('');
@@ -90,16 +139,20 @@ export default function ChatWindow({ selectedSession }) {
 >
 
           {messages.map((msg, i) => (
-            <Slide key={i} direction="up" in mountOnEnter unmountOnExit>
-              <Box ref={i === messages.length - 1 ? lastMsgRef : null} mb={2} display="flex" justifyContent={msg.sender === 'user' ? 'flex-end' : 'flex-start'}>
-                <Paper sx={{ p: 2, bgcolor: msg.sender === 'user' ? '#bee3f8' : '#fbd38d', borderRadius: 3, maxWidth: 380 }}>
-                  <Typography variant="body1">{msg.text}</Typography>
-                  <Typography variant="caption" color="text.secondary">{msg.sender} • {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : ''}</Typography>
-                </Paper>
-              </Box>
-            </Slide>
-          ))}
-          <div ref={lastMsgRef} />
+  <Slide key={i} direction="up" in mountOnEnter unmountOnExit>
+    <Box ref={i === messages.length - 1 ? lastMsgRef : null} mb={2} display="flex" justifyContent={msg.sender === 'user' ? 'flex-end' : 'flex-start'}>
+      <Paper sx={{ p: 2, bgcolor: msg.sender === 'user' ? '#bee3f8' : '#fbd38d', borderRadius: 3, maxWidth: 380 }}>
+        <Typography variant="body1">{msg.text}</Typography>
+        <Typography variant="caption" color="text.secondary">{msg.sender} • {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : ''}</Typography>
+        {/* Faktencheck-Button nur für Assistant-Nachrichten */}
+        {msg.sender === 'assistant' && (
+          <FactCheckSection message={msg.text} />
+        )}
+      </Paper>
+    </Box>
+  </Slide>
+))}
+<div ref={lastMsgRef} />
         </Box>
         <Box display="flex" alignItems="center" gap={2}>
           <TextField

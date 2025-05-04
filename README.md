@@ -120,7 +120,16 @@ Professionelles, lokal laufendes Chat-System mit LLM, Vektor-Datenbank und API-B
 - [x] Undo-Funktion beim Session-Löschen (Frontend & Backend vollständig implementiert)
 - [x] Multi-Message-Threads & Export (JSON)
 - [ ] Auth
-- [ ] Faktenprüfung/RAG (in Planung)
+- [x] Faktenprüfung/RAG (Backend & Frontend fertig: Button im Chat, Wikipedia-Integration, asynchron & robust)
+- [ ] Feinschliff: bessere Satztrennung, weitere Wissensquellen, Authentifizierung (optional)
+
+---
+
+## Faktenprüfung/RAG (neu)
+- Faktencheck-Button unter jeder Assistant-Antwort im Chat
+- Prüft Aussagen gegen Wikipedia (de), zeigt Snippet & Link, robust gegen Fehler
+- Asynchrone Verarbeitung, kein Blockieren des Backends
+- Maximal 5 Sätze pro Anfrage
 
 ---
 
