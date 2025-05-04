@@ -55,54 +55,6 @@ def remove_from_vector_db(chat_id: str):
     except Exception as e:
         print(f"[ChromaDB-DEBUG] Fehler beim Entfernen aus ChromaDB: {e}")
 
-def remove_from_vector_db(chat_id: str):
-    """Entfernt einen Eintrag aus der ChromaDB-Collection anhand der ID."""
-    print(f"[ChromaDB-DEBUG] remove_from_vector_db called with id={chat_id}")
-    try:
-        collection.delete(ids=[chat_id])
-        if hasattr(collection, 'persist'):
-            collection.persist()
-            print("[ChromaDB-DEBUG] collection.persist() nach Delete aufgerufen.")
-        elif hasattr(globals().get('chroma_client', None), 'persist'):
-            chroma_client.persist()
-            print("[ChromaDB-DEBUG] chroma_client.persist() nach Delete aufgerufen.")
-    except Exception as e:
-        print(f"[ChromaDB-DEBUG] Fehler beim Entfernen aus ChromaDB: {e}")
-
-    import logging
-    import traceback
-    print(f"[ChromaDB-DEBUG] add_to_vector_db called with id={metadata.get('id') if metadata else None}")
-    try:
-        collection.add(
-            documents=[text],
-            embeddings=[embedding],
-            metadatas=[metadata or {}],
-            ids=[metadata.get("id") if metadata and "id" in metadata else None]
-        )
-        logging.info(f"[ChromaDB] Embedding erfolgreich gespeichert: {metadata.get('id') if metadata else None}")
-        print(f"[ChromaDB] Embedding erfolgreich gespeichert: {metadata.get('id') if metadata else None}")
-        import os
-        chroma_dir = os.path.abspath("chroma_db")
-        print(f"[ChromaDB-DEBUG] chroma_db exists? {os.path.exists(chroma_dir)}")
-        if os.path.exists(chroma_dir):
-            print(f"[ChromaDB-DEBUG] Inhalt von chroma_db: {os.listdir(chroma_dir)}")
-        else:
-            print(f"[ChromaDB-DEBUG] chroma_db nicht vorhanden")
-        # Versuche, persist() aufzurufen, falls verfügbar
-        try:
-            if hasattr(collection, 'persist'):
-                collection.persist()
-                print("[ChromaDB-DEBUG] collection.persist() wurde aufgerufen.")
-            elif hasattr(globals().get('chroma_client', None), 'persist'):
-                chroma_client.persist()
-                print("[ChromaDB-DEBUG] chroma_client.persist() wurde aufgerufen.")
-        except Exception as persist_exc:
-            print(f"[ChromaDB-DEBUG] Fehler beim Persistieren: {persist_exc}")
-    except Exception as e:
-        logging.error(f"[ChromaDB] Fehler beim Speichern: {e}")
-        print(f"[ChromaDB] Fehler beim Speichern: {e}")
-        print(traceback.format_exc())
-
 def query_vector_db(query_embedding: list, n_results: int = 5, score_threshold: float = 0.5):
     """
     Gibt nur Ergebnisse zurück, deren Score >= score_threshold ist. Score wird mitgeliefert.
