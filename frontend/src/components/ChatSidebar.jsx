@@ -13,6 +13,22 @@ import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
 export default function ChatSidebar({ onSelectSession, selectedSessionId }) {
+  // ...
+  const handleExportSession = async (sessionId) => {
+    try {
+      const res = await axios.get(`/sessions/export/${sessionId}`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/json' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `session_${sessionId}.json`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('Fehler beim Exportieren: ' + (err?.response?.data?.error || err.message));
+    }
+  }
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteSessionId, setDeleteSessionId] = useState(null);
   const [removeVectors, setRemoveVectors] = useState(true);
@@ -127,9 +143,14 @@ export default function ChatSidebar({ onSelectSession, selectedSessionId }) {
             selected={session.id === selectedSessionId}
             onClick={() => onSelectSession(session)}
             secondaryAction={
-              <IconButton edge="end" aria-label="delete" onClick={e => { e.stopPropagation(); handleDeleteSession(session.id); }}>
-                <DeleteIcon />
-              </IconButton>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <IconButton edge="end" aria-label="export" onClick={e => { e.stopPropagation(); handleExportSession(session.id); }} title="Exportieren als JSON">
+                  <span role="img" aria-label="Export">⬇️</span>
+                </IconButton>
+                <IconButton edge="end" aria-label="delete" onClick={e => { e.stopPropagation(); handleDeleteSession(session.id); }}>
+                  <DeleteIcon />
+                </IconButton>
+              </Box>
             }
           >
             <ListItemText
@@ -138,6 +159,7 @@ export default function ChatSidebar({ onSelectSession, selectedSessionId }) {
             />
           </ListItem>
         ))}
+
       </List>
       <Snackbar
         open={snackbarOpen}

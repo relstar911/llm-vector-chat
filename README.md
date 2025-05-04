@@ -87,31 +87,40 @@ Professionelles, lokal laufendes Chat-System mit LLM, Vektor-Datenbank und API-B
 - **Sidebar:** Zeigt alle bisherigen Sessions, Auswahl lädt Verlauf, "Neuer Chat"-Button, Sessions können gelöscht werden.
 - **Session-Titel:** Die Session erhält automatisch den Text der ersten User-Nachricht als Titel.
 - **Session-Löschung:** Beim Löschen erscheint ein Dialog mit der Option, auch die Embeddings aus der Vektor-Datenbank zu entfernen (Checkbox, standardmäßig aktiviert).
-- **Undo:** Nach dem Löschen einer Session ist eine Undo-Funktion (Wiederherstellung) geplant.
-- **ChromaDB-Sync:** Beim Löschen wird das Embedding aus ChromaDB entfernt, sofern gewählt. Bei Undo wird es wiederhergestellt (geplant).
+- **Undo:** Nach dem Löschen einer Session ist eine Undo-Funktion (Wiederherstellung) direkt im Frontend verfügbar (Snackbar mit Undo-Button). Vollständige Wiederherstellung inkl. Embeddings und Nachrichten.
+- **ChromaDB-Sync:** Beim Löschen wird das Embedding aus ChromaDB entfernt (optional, Checkbox). Bei Undo wird es wiederhergestellt.
+- **Export:** Sessions können einzeln als JSON-Datei exportiert werden (Export-Button in der Sidebar, Endpoint `/sessions/export/{session_id}`).
 - **REST-API:**
   - `/chats` (GET): Alle bisherigen Chats
   - `/chats/{id}` (DELETE): Chat + Embedding löschen
   - `/chats/restore` (POST): Chat + Embedding exakt wiederherstellen
   - `/chat` (POST): Neuen Chat starten (Prompt → LLM → Antwort → Embedding)
-  - `/query` (POST): Semantische Suche über alle bisherigen Chats
+  - `/query` (POST): Semantische Suche über alle bisherigen Chats (zeigt nur Ergebnisse zu existierenden Sessions)
+  - `/sessions/export/{session_id}` (GET): Exportiert eine Session als JSON
 - **Authentifizierung:** Zugangsschutz für API (optional, noch offen)
 - **Logging & Monitoring:** Fehler und Nutzung überwachen (optional)
 - **Weitere Modelle:** Verschiedene LLMs via Ollama testen (Dropdown im UI möglich)
-- **Datenexport:** Chats & Embeddings exportieren (optional)
 
 ---
 
+## Frontend-Features (Stand: 2025-05-04)
+- Sidebar mit Session-Liste, Auswahl, Session-Löschung (mit Dialog und Undo)
+- Undo-Snackbar nach Session-Löschung (Wiederherstellung möglich)
+- Export-Button pro Session (Download als JSON)
+- Responsive Design, Material UI
+
+---
 
 ## Projektstatus
 - [x] LLM-Chat lokal lauffähig
 - [x] Persistenz & Vektor-Suche funktionieren
 - [x] API-Design sauber und modular
-- [x] Modernes Frontend mit Sidebar, Session-Löschung, Delete-Dialog
+- [x] Modernes Frontend mit Sidebar, Session-Löschung, Delete-Dialog, Export
 - [x] Konsistenz zwischen SQLite & ChromaDB
 - [x] Undo-Funktion beim Session-Löschen (Frontend & Backend vollständig implementiert)
-- [x] Multi-Message-Threads & 
+- [x] Multi-Message-Threads & Export (JSON)
 - [ ] Auth
+- [ ] Faktenprüfung/RAG (in Planung)
 
 ---
 

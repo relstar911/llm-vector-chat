@@ -113,6 +113,33 @@ def delete_session(session_id: str, remove_vectors: bool = Query(True), db: Sess
     return {"success": True}
 
 # ----- Undo/Restore Endpoint -----
+
+from fastapi.responses import JSONResponse
+
+@router.get("/sessions/export/{session_id}")
+def export_session_json(session_id: str, db: Session = Depends(get_db)):
+    session = db.query(ChatSession).filter_by(id=session_id).first()
+    if not session:
+        return JSONResponse(status_code=404, content={"error": "Session not found"})
+    messages = db.query(ChatMessage).filter_by(session_id=session_id).order_by(ChatMessage.timestamp.asc()).all()
+    export_data = {
+        "id": session.id,
+        "title": session.title,
+        "created_at": session.created_at.isoformat() if session.created_at else None,
+        "messages": [
+            {
+                "id": m.id,
+                "sender": m.sender,
+                "text": m.text,
+                "timestamp": m.timestamp.isoformat() if m.timestamp else None
+            }
+            for m in messages
+        ]
+    }
+    return JSONResponse(content=export_data, headers={
+        "Content-Disposition": f"attachment; filename=session_{session.id}.json"
+    })
+
 class RestoreSessionRequest(BaseModel):
     session: dict
     messages: List[dict]
